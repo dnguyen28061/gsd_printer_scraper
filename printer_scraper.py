@@ -42,17 +42,23 @@ addresses_xerox_printers = [
 ]
 
 def make_soup(url):
-    r = requests.get(url, verify = False)
-    return BeautifulSoup(r.text,'html.parser')
-
+    try: 
+        r = requests.get(url, verify = False)
+        return BeautifulSoup(r.text,'html.parser')
+    except: 
+        print("Could not get info for above printer")
 def get_info_HP_m806(address): 
     soup = make_soup(address)
     ids = ["SupplyPLR0", "SupplyPLR1", "TrayBinStatus_2", "TrayBinStatus_3", "TrayBinStatus_4",
     "TrayBinStatus_5"]
+    tray_sizes = ["TrayBinSize_2","TrayBinSize_3","TrayBinSize_4","TrayBinSize_5"]
     info = ["Black", "Maint", "T2", "T3", "T4", "T5"]
     for idx, tag in enumerate(ids): 
         percentage = soup.find(id = tag).contents[0]
-        print(info[idx] + ": " + percentage)
+        tray_info = ""
+        if idx > 1: 
+            tray_info = ", Tray: " + soup.find(id = tray_sizes[idx - 2]).contents[0]
+        print(info[idx] + ": " + percentage + tray_info)
     
 def get_info_xerox(address): 
     xerox_elts = ["Black", "Cyan", "Magenta", "Yellow", "Black Image", 
